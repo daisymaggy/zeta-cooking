@@ -19,6 +19,7 @@ FROM base AS runtime
 COPY --from=prod-deps /app/node_modules ./node_modules 
 COPY --from=build /app/dist ./dist 
 COPY package.json ./
+COPY astro.config.mjs ./
 
 # Bind to all interfaces
 ENV HOST=0.0.0.0
