@@ -1,0 +1,28 @@
+---
+export const prerender = false;
+// export function getStaticPaths() {
+//   return [
+//     { params: { recipe: "clifford" }},
+//     { params: { recipe: "rover" }},
+//     { params: { recipe: "spot" }},
+//   ];
+// }
+
+
+const { id } = Astro.params;
+
+const response = await fetch(`${Astro.url.origin}/api/recipes/${id}.json`);
+
+let recipeData = null;
+let error = null;
+
+if (response.ok) {
+    recipeData = await response.json();
+    console.log(recipeData);
+} else {
+    error = "Recette non trouvée";
+    console.log(error);
+}
+---
+<div>{id} : {recipeData.name}</div>
+<div>Instructions : {recipeData.instructions}</div>
