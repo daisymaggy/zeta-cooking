@@ -24,7 +24,7 @@ export const GET: APIRoute = async({ params }) => {
         );
         
         if (!res.ok) {
-            return new Response(JSON.stringify({ error: "Recette non trouvée" }), {
+            return new Response(JSON.stringify({ error: "Recipe not found" }), {
                 status: 404,
                 headers: { "Content-Type": "application/json" }
             });
