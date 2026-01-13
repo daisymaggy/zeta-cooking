@@ -76,8 +76,8 @@ if (!id) {
     <style>
         body {
             display: flex;
-            justify-content: space-evenly;
-            gap: 3rem;
+            justify-content: center;
+            gap: 10rem;
             font-family: system-ui, sans-serif;
             margin: 0;
             padding: 2rem;
@@ -103,7 +103,7 @@ if (!id) {
         .related-recipes {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 1rem;
         }
     </style>
 </head>
@@ -114,10 +114,7 @@ if (!id) {
         <div>
             <div class="recipe-header">
                 <h1>{recipeData.name}</h1>
-                <div style="display: flex; flex-direction: row; justify-content: space-around">
-                    <p style="text-transform:uppercase">{recipeData.category}</p>
                     <p style="text-transform:uppercase">{recipeData.when_to_eat}</p>
-                </div>
                 {recipeData.image_url && (
                     <img 
                         src={recipeData.image_url} 
@@ -151,22 +148,19 @@ if (!id) {
                 <p>{new Date(recipeData.created_at).toLocaleDateString('fr-FR')}</p>
             </div>
         </div>
-        <div class="related-recipes">
+        <div>
             <h1>Related Recipes</h1>
-            <RecipeCard title="Recipe1" description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium"/>
             {relatedRecipesData.length > 0 ? (
-                //TODO : enlever la div et ajouter le comportement de clic dans le composant RecipeCard
-                // Important pour le gap du display flex
-                <div>
+                <div class="related-recipes">
                     {relatedRecipesData.map((recipe) => (
-                        <a href={`/recipes/${recipe.id}`} style="text-decoration: none; color: inherit;">
                             <RecipeCard 
                                 title={recipe.name}
                                 image_url={recipe.image_url}
                                 name={recipe.name}
                                 description={recipe.description}
+                                id={recipe.id}
+                                when_to_eat={recipe.when_to_eat}
                             />
-                        </a>
                     ))}
                 </div>
             ) : (
