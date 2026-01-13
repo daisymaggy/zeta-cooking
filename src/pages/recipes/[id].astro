@@ -54,6 +54,7 @@ if (!id) {
     <style>
         body {
             display: flex;
+            justify-content: space-evenly;
             gap: 3rem;
             font-family: system-ui, sans-serif;
             margin: 0;
@@ -83,7 +84,7 @@ if (!id) {
     {error ? (
         <Error error={error}/>
     ) : recipeData ? (
-        <div class="recipe-box">
+        <div>
             <div class="recipe-header">
                 <h1>{recipeData.name}</h1>
                 <div style="display: flex; flex-direction: row; justify-content: space-around">
