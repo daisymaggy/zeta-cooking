@@ -44,6 +44,27 @@ if (!id) {
         console.error(e);
     }
 }
+
+let relatedRecipesData: Recipe[] = [];
+if (!id) {
+    error = "Recipe ID is missing";
+} else {
+    try {
+        const response = await fetch(`${Astro.url.origin}/api/related/${id}.json`);
+        
+        if (response.ok) {
+            relatedRecipesData = await response.json();
+            console.log(relatedRecipesData);
+            console.log(relatedRecipesData.length);
+        } else {
+            const errorData = await response.json();
+            error = errorData.error || "Recipe not found";
+        }
+    } catch (e) {
+        error = "Error loading the recipe";
+        console.error(e);
+    }
+}
 ---
 
 <!DOCTYPE html>
@@ -78,6 +99,11 @@ if (!id) {
         }
         .recipe-section {
             margin: 2rem 0;
+        }
+        .related-recipes {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
     </style>
 </head>
@@ -128,6 +154,24 @@ if (!id) {
         <div class="related-recipes">
             <h1>Related Recipes</h1>
             <RecipeCard title="Recipe1" description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium"/>
+            {relatedRecipesData.length > 0 ? (
+                //TODO : enlever la div et ajouter le comportement de clic dans le composant RecipeCard
+                // Important pour le gap du display flex
+                <div>
+                    {relatedRecipesData.map((recipe) => (
+                        <a href={`/recipes/${recipe.id}`} style="text-decoration: none; color: inherit;">
+                            <RecipeCard 
+                                title={recipe.name}
+                                image_url={recipe.image_url}
+                                name={recipe.name}
+                                description={recipe.description}
+                            />
+                        </a>
+                    ))}
+                </div>
+            ) : (
+                <p>No related recipes.</p>
+            )}
         </div>
     ) : (
         <p>Loading...</p>
