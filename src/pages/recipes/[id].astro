@@ -1,5 +1,6 @@
 ---
 import Error from "../../components/Error.astro";
+import RecipeCard from "../../components/RecipeCard.astro";
 export const prerender = false;
 
 interface Recipe {
@@ -126,6 +127,7 @@ if (!id) {
         </div>
         <div class="related-recipes">
             <h1>Related Recipes</h1>
+            <RecipeCard title="Recipe1" description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium"/>
         </div>
     ) : (
         <p>Loading...</p>

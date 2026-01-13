@@ -1,0 +1,32 @@
+---
+const { title, image_url, name, description } = Astro.props;
+---
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #d8d8d8;
+        border-radius: 8px;
+        width: 18rem;
+    }
+    .recipe-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+</style>
+<div class="card">
+    <h3 style="text-align: center; margin: 0;">{title}</h3>
+    {image_url && (
+        <img 
+            src={image_url} 
+            alt={name}
+            class="recipe-image"
+        />
+    )} 
+    <p style="margin: 0">{description}</p>
+</div>    
+</div>
