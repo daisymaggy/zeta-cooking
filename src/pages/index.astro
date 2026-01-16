@@ -2,6 +2,7 @@
 import RecipeCard from "../components/RecipeCard.astro";
 import Error from "../components/Error.astro";
 import type { Recipe } from "../types/recipe";
+import Header from "../components/Header.astro";
 
 let error: string | null = null;
 let allRecipesData: Recipe[] = [];
@@ -39,51 +40,6 @@ try {
 				margin: 20px;
 				background: white;
 				color: #111827;
-			}
-			/* Top header */
-			.topbar {
-				display: flex;
-				align-items: center;
-				gap: 12px;
-				justify-content: space-between;
-				margin-bottom: 18px;
-			}
-			.brand {
-				font-weight: 800;
-				font-size: 20px;
-				letter-spacing: 0.2px;
-			}
-			.search {
-				flex: 1;
-				display: flex;
-				align-items: center;
-				max-width: 680px;
-				margin: 0 12px;
-			}
-			.search input {
-				flex: 1;
-				padding: 10px 14px;
-				border-radius: 999px;
-				border: 1px solid #e6e6e6;
-				background: #fff;
-				outline: none;
-			}
-			.search button {
-				margin-left: 8px;
-				padding: 8px 10px;
-				border-radius: 10px;
-				border: 1px solid #e6e6e6;
-				background: #f8fafc;
-				cursor: pointer;
-			}
-			.login {
-				padding: 8px 12px;
-				background: var(--accent);
-				color: #fff;
-				border-radius: 10px;
-				border: none;
-				font-weight: 600;
-				cursor: pointer;
 			}
 			/* Hero image (fills available width) */
 			.hero-wrapper {
@@ -150,18 +106,8 @@ try {
 		<title>Astro</title>
 	</head>
 	<body>
-		<header class="topbar">
-			<div class="brand">ZetaCooking</div>
-			<form class="search" role="search">
-				<input
-					type="search"
-					placeholder="Search recipes…"
-					aria-label="Search recipes"
-				/>
-				<button aria-label="Search">🔍</button>
-			</form>
-			<button class="login">Login</button>
-		</header>
+		<Header />
+
 		<div class="hero-wrapper">
 			<img class="hero-image" src="/images/cuisine.jpeg" alt="cuisine" />
 			<div class="hero-title">ZetaCooking</div>
