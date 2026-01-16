@@ -166,26 +166,32 @@ try {
 			<img class="hero-image" src="/images/cuisine.jpeg" alt="cuisine" />
 			<div class="hero-title">ZetaCooking</div>
 		</div>
-		<div>
-			<h1>All Recipes</h1>
-			{
-				allRecipesData.length > 0 ? (
-					<div class="all-recipes">
-						{allRecipesData.map((recipe) => (
-							<RecipeCard
-								title={recipe.name}
-								image_url={recipe.image_url}
-								name={recipe.name}
-								description={recipe.description}
-								id={recipe.id}
-								when_to_eat={recipe.when_to_eat}
-							/>
-						))}
-					</div>
-				) : (
-					<p>No recipes found.</p>
-				)
-			}
-		</div>
+		{
+			error ? (
+				<Error error={error} />
+			) : allRecipesData ? (
+				<div>
+					<h1>All Recipes</h1>
+					{allRecipesData.length > 0 ? (
+						<div class="all-recipes">
+							{allRecipesData.map((recipe) => (
+								<RecipeCard
+									title={recipe.name}
+									image_url={recipe.image_url}
+									name={recipe.name}
+									description={recipe.description}
+									id={recipe.id}
+									when_to_eat={recipe.when_to_eat}
+								/>
+							))}
+						</div>
+					) : (
+						<p>No recipes found.</p>
+					)}
+				</div>
+			) : (
+				<p>Loading...</p>
+			)
+		}
 	</body>
 </html>
