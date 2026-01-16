@@ -1,0 +1,174 @@
+---
+import Error from "../../components/Error.astro";
+import RecipeCard from "../../components/RecipeCard.astro";
+export const prerender = false;
+
+interface Recipe {
+    calories: number;
+    category: string;
+    cook_time: number;
+    cost: number;
+    created_at: string;
+    created_by: string;
+    description: string;
+    disclaimer: string;
+    id: string;
+    image_url: string;
+    instructions: string;
+    name: string;
+    prep_time: number;
+    published: boolean;
+    servings: number;
+    when_to_eat: string;
+}
+
+const { id } = Astro.params;
+
+let recipeData: Recipe | null = null;
+let error: string | null = null;
+
+if (!id) {
+    error = "Recipe ID is missing";
+} else {
+    try {
+        const response = await fetch(`${Astro.url.origin}/api/recipes/${id}.json`);
+        
+        if (response.ok) {
+            recipeData = await response.json();
+        } else {
+            const errorData = await response.json();
+            error = errorData.error || "Recipe not found";
+        }
+    } catch (e) {
+        error = "Error loading the recipe";
+        console.error(e);
+    }
+}
+
+let relatedRecipesData: Recipe[] = [];
+if (!id) {
+    error = "Recipe ID is missing";
+} else {
+    try {
+        const response = await fetch(`${Astro.url.origin}/api/related/${id}.json`);
+        
+        if (response.ok) {
+            relatedRecipesData = await response.json();
+            console.log(relatedRecipesData);
+            console.log(relatedRecipesData.length);
+        } else {
+            const errorData = await response.json();
+            error = errorData.error || "Recipe not found";
+        }
+    } catch (e) {
+        error = "Error loading the recipe";
+        console.error(e);
+    }
+}
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{recipeData?.name || 'Recette'}</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            gap: 10rem;
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 2rem;
+        }
+        .recipe-header {
+            margin-bottom: 2rem;
+        }
+        .recipe-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .recipe-meta {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+            color: #666;
+        }
+        .recipe-section {
+            margin: 2rem 0;
+        }
+        .related-recipes {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    {error ? (
+        <Error error={error}/>
+    ) : recipeData ? (
+        <div>
+            <div class="recipe-header">
+                <h1>{recipeData.name}</h1>
+                    <p style="text-transform:uppercase">{recipeData.when_to_eat}</p>
+                {recipeData.image_url && (
+                    <img 
+                        src={recipeData.image_url} 
+                        alt={recipeData.name}
+                        class="recipe-image"
+                    />
+                )}                
+                <p style="font-style: italic">{recipeData.description}</p>
+            </div>
+
+            <div class="recipe-meta">
+                <div>⏱️ Preparation : {recipeData.prep_time} min</div>
+                <div>🍳 Cooking Time : {recipeData.cook_time} min</div>
+                <div>🍽️ Servings : {recipeData.servings}</div>
+                <div>🔥 Calories : {recipeData.calories} kcal</div>
+            </div>
+
+            <div class="recipe-section">
+                <h2>Instructions</h2>
+                <p style="white-space: pre-wrap;">{recipeData.instructions}</p>
+            </div>
+
+            {recipeData.disclaimer && (
+                <div class="recipe-section">
+                    <p><em>{recipeData.disclaimer}</em></p>
+                </div>
+            )}
+
+            <div class="recipe-section" style="color: #999; font-size: 0.9em;">
+                <p style="font-style: italic">by {recipeData.created_by}</p>
+                <p>{new Date(recipeData.created_at).toLocaleDateString('fr-FR')}</p>
+            </div>
+        </div>
+        <div>
+            <h1>Related Recipes</h1>
+            {relatedRecipesData.length > 0 ? (
+                <div class="related-recipes">
+                    {relatedRecipesData.map((recipe) => (
+                            <RecipeCard 
+                                title={recipe.name}
+                                image_url={recipe.image_url}
+                                name={recipe.name}
+                                description={recipe.description}
+                                id={recipe.id}
+                                when_to_eat={recipe.when_to_eat}
+                            />
+                    ))}
+                </div>
+            ) : (
+                <p>No related recipes.</p>
+            )}
+        </div>
+    ) : (
+        <p>Loading...</p>
+    )}
+</body>
+</html>

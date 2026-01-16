@@ -1,0 +1,16 @@
+---
+const { error } = Astro.props;
+---
+<style>
+    .error {
+        background: #fee;
+        color: #c00;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+</style>
+<div class="error">
+    <h1>Gloups! The page you are searching for cannot be found...</h1>
+    <p>{error}</p>
+    <!-- <p>ID recherché : {id}</p> -->
+</div>

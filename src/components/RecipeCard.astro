@@ -1,0 +1,42 @@
+---
+const { id, title, image_url, name, description, when_to_eat } = Astro.props;
+---
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem 2rem;
+        border: 1px solid #d8d8d8;
+        border-radius: 8px;
+        width: 18rem;
+    }
+    .recipe-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 8px;
+        align-self: center;
+    }
+    .description-box {
+        margin: 0;
+        display: flex;
+        gap: 0.5rem;
+        flex-direction: column;
+    }
+</style>
+<a class="card" href={`/recipes/${id}`} style="text-decoration: none; color: inherit;">
+    <h3 style="text-align: center; margin: 0;">{title}</h3>
+    {image_url && (
+        <img 
+            src={image_url} 
+            alt={name}
+            class="recipe-image"
+        />
+    )} 
+    <div class="description-box">
+        <p style="text-transform:uppercase; color: #666; margin: 0; font-size: small;">{when_to_eat}</p>
+        <p style="margin: 0; color: #333; font-size: medium">{description}</p>
+    </div>
+</a>
+</div>

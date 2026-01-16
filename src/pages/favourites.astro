@@ -1,0 +1,29 @@
+---
+export const prerender = true;
+
+// export async function GET() {
+//   let number = Math.random();
+//   return new Response(
+//     JSON.stringify({
+//       number,
+//       message: `Here's a random number: ${number}`,
+//     }),
+//   );
+// }
+
+// const {n} = await GET();
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>My favourites</h1>
+		<!-- <div>{n}</div> -->
+		<div>Hello</div>
+	</body>
+</html>
