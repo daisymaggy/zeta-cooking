@@ -1,5 +1,24 @@
 ---
+import RecipeCard from "../components/RecipeCard.astro";
+import Error from "../components/Error.astro";
+import type { Recipe } from "../types/recipe";
 
+let error: string | null = null;
+let allRecipesData: Recipe[] = [];
+try {
+	const response = await fetch(
+		`${Astro.url.origin}/api/all_recipes/all.json`,
+	);
+	if (response.ok) {
+		allRecipesData = await response.json();
+	} else {
+		const errorData = await response.json();
+		error = errorData.error || "Recipes not found";
+	}
+} catch (e) {
+	error = "Error loading the recipes";
+	console.error(e);
+}
 ---
 
 <html lang="en">
@@ -7,10 +26,172 @@
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
+		<style>
+			:root {
+				--muted: #6b7280;
+				--accent: #fb923c;
+			}
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				font-family: system-ui, sans-serif;
+				margin: 20px;
+				background: white;
+				color: #111827;
+			}
+			/* Top header */
+			.topbar {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				justify-content: space-between;
+				margin-bottom: 18px;
+			}
+			.brand {
+				font-weight: 800;
+				font-size: 20px;
+				letter-spacing: 0.2px;
+			}
+			.search {
+				flex: 1;
+				display: flex;
+				align-items: center;
+				max-width: 680px;
+				margin: 0 12px;
+			}
+			.search input {
+				flex: 1;
+				padding: 10px 14px;
+				border-radius: 999px;
+				border: 1px solid #e6e6e6;
+				background: #fff;
+				outline: none;
+			}
+			.search button {
+				margin-left: 8px;
+				padding: 8px 10px;
+				border-radius: 10px;
+				border: 1px solid #e6e6e6;
+				background: #f8fafc;
+				cursor: pointer;
+			}
+			.login {
+				padding: 8px 12px;
+				background: var(--accent);
+				color: #fff;
+				border-radius: 10px;
+				border: none;
+				font-weight: 600;
+				cursor: pointer;
+			}
+			/* Hero image (fills available width) */
+			.hero-wrapper {
+				position: relative;
+				display: block;
+				height: 33vh;
+				max-height: 360px;
+				overflow: hidden;
+				border-radius: 12px;
+			}
+			.hero-image {
+				width: 100%;
+				height: 100%;
+				display: block;
+				object-fit: cover;
+				object-position: top;
+				border-radius: 0;
+			}
+			/* Centered blurry rectangle over image */
+			.hero-title {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				background: rgba(0, 0, 0, 0.35);
+				backdrop-filter: blur(6px);
+				-webkit-backdrop-filter: blur(6px);
+				padding: 12px 20px;
+				border-radius: 10px;
+				color: #fff;
+				font-weight: 700;
+				font-style: italic;
+				font-size: 34px;
+				box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+				border: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.all-recipes {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+				gap: 1.5rem;
+				width: 100%;
+			}
+			@media (max-width: 720px) {
+				.topbar {
+					flex-direction: column;
+					align-items: stretch;
+				}
+				.search {
+					order: 2;
+					width: 100%;
+					margin: 8px 0;
+				}
+				.login {
+					order: 3;
+					align-self: flex-end;
+				}
+				.hero-title {
+					font-size: 22px;
+					padding: 10px 14px;
+				}
+			}
+		</style>
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>Welcome to zeta cooking</h1>
+		<header class="topbar">
+			<div class="brand">ZetaCooking</div>
+			<form class="search" role="search">
+				<input
+					type="search"
+					placeholder="Search recipes…"
+					aria-label="Search recipes"
+				/>
+				<button aria-label="Search">🔍</button>
+			</form>
+			<button class="login">Login</button>
+		</header>
+		<div class="hero-wrapper">
+			<img class="hero-image" src="/images/cuisine.jpeg" alt="cuisine" />
+			<div class="hero-title">ZetaCooking</div>
+		</div>
+		{
+			error ? (
+				<Error error={error} />
+			) : allRecipesData ? (
+				<div>
+					<h1>All Recipes</h1>
+					{allRecipesData.length > 0 ? (
+						<div class="all-recipes">
+							{allRecipesData.map((recipe) => (
+								<RecipeCard
+									title={recipe.name}
+									image_url={recipe.image_url}
+									name={recipe.name}
+									description={recipe.description}
+									id={recipe.id}
+									when_to_eat={recipe.when_to_eat}
+								/>
+							))}
+						</div>
+					) : (
+						<p>No recipes found.</p>
+					)}
+				</div>
+			) : (
+				<p>Loading...</p>
+			)
+		}
 	</body>
 </html>

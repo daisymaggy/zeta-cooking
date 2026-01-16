@@ -1,26 +1,8 @@
 ---
 import Error from "../../components/Error.astro";
 import RecipeCard from "../../components/RecipeCard.astro";
+import type { Recipe } from "../../types/recipe";
 export const prerender = false;
-
-interface Recipe {
-    calories: number;
-    category: string;
-    cook_time: number;
-    cost: number;
-    created_at: string;
-    created_by: string;
-    description: string;
-    disclaimer: string;
-    id: string;
-    image_url: string;
-    instructions: string;
-    name: string;
-    prep_time: number;
-    published: boolean;
-    servings: number;
-    when_to_eat: string;
-}
 
 const { id } = Astro.params;
 
@@ -54,8 +36,6 @@ if (!id) {
         
         if (response.ok) {
             relatedRecipesData = await response.json();
-            console.log(relatedRecipesData);
-            console.log(relatedRecipesData.length);
         } else {
             const errorData = await response.json();
             error = errorData.error || "Recipe not found";
