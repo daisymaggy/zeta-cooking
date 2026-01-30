@@ -12,5 +12,15 @@
     "@astrojs/netlify": "^6.6.3",
     "@astrojs/node": "^9.5.1",
     "astro": "^5.16.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@typescript-eslint/parser": "^8.53.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-astro": "^1.5.0",
+    "globals": "^17.0.0",
+    "prettier": "^3.8.0",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript-eslint": "^8.53.0"
   }
 }
