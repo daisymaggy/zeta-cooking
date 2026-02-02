@@ -1,0 +1,44 @@
+---
+// export const prerender = false
+import Error from '../components/Error.astro'
+
+let error: string | null = null
+let token: string | null = null
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    const res = await fetch('https://gourmet.cours.quimerch.com/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: formData.get('username'),
+        password: formData.get('password'),
+      }),
+    })
+
+    if (!res.ok) throw new Error()
+
+    const data = await res.json()
+    token = data.token
+  } catch {
+    error = 'Check your credentials'
+  }
+}
+if (token) {
+  return Astro.redirect('/favourites')
+}
+---
+
+<h1>Login</h1>
+
+{error && <Error error={error} />}
+
+<form method="POST">
+  <input name="username" required />
+  <input name="password" type="password" required />
+  <button>Login</button>
+</form>
