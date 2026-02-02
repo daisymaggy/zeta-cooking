@@ -4,6 +4,8 @@ import Error from "../components/Error.astro";
 import type { Recipe } from "../types/recipe";
 import Header from "../components/Header.astro";
 
+const searchQuery = Astro.url.searchParams.get('q') || '';
+
 let error: string | null = null;
 let allRecipesData: Recipe[] = [];
 try {
@@ -41,7 +43,6 @@ try {
 				background: white;
 				color: #111827;
 			}
-			/* Hero image (fills available width) */
 			.hero-wrapper {
 				position: relative;
 				display: block;
@@ -58,7 +59,6 @@ try {
 				object-position: top;
 				border-radius: 0;
 			}
-			/* Centered blurry rectangle over image */
 			.hero-title {
 				position: absolute;
 				left: 50%;
@@ -82,6 +82,30 @@ try {
 				gap: 1.5rem;
 				width: 100%;
 			}
+			.search-info {
+				margin: 20px 0;
+				padding: 12px 16px;
+				background: #f3f4f6;
+				border-left: 4px solid var(--accent);
+				border-radius: 8px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			.search-info a {
+				color: var(--accent);
+				text-decoration: none;
+				font-weight: 600;
+			}
+			.search-info a:hover {
+				text-decoration: underline;
+			}
+			.recipe-card {
+				transition: opacity 0.2s ease;
+			}
+			.recipe-card.hidden {
+				display: none;
+			}
 			@media (max-width: 720px) {
 				.topbar {
 					flex-direction: column;
@@ -103,7 +127,7 @@ try {
 			}
 		</style>
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>ZetaCooking - {searchQuery ? `Search: ${searchQuery}` : 'All Recipes'}</title>
 	</head>
 	<body>
 		<Header />
@@ -112,25 +136,34 @@ try {
 			<img class="hero-image" src="/images/cuisine.jpeg" alt="cuisine" />
 			<div class="hero-title">ZetaCooking</div>
 		</div>
+		
+		<div class="search-info" id="searchInfo" style="display: none;">
+			<span id="searchText"></span>
+			<a href="/">Clear search</a>
+		</div>
+		
 		{
 			error ? (
 				<Error error={error} />
 			) : allRecipesData ? (
 				<div>
-					<h1>All Recipes</h1>
+					<h1 id="pageTitle">All Recipes</h1>
 					{allRecipesData.length > 0 ? (
-						<div class="all-recipes">
+						<div class="all-recipes" id="recipesGrid">
 							{allRecipesData.map((recipe) => (
-								<RecipeCard
-									title={recipe.name}
-									image_url={recipe.image_url}
-									name={recipe.name}
-									description={recipe.description}
-									id={recipe.id}
-									when_to_eat={recipe.when_to_eat}
-								/>
+								<div class="recipe-card" data-recipe-name={recipe.name.toLowerCase()}>
+									<RecipeCard
+										title={recipe.name}
+										image_url={recipe.image_url}
+										name={recipe.name}
+										description={recipe.description}
+										id={recipe.id}
+										when_to_eat={recipe.when_to_eat}
+									/>
+								</div>
 							))}
 						</div>
+						<p id="noResults" style="display: none;">No recipes found.</p>
 					) : (
 						<p>No recipes found.</p>
 					)}
@@ -139,5 +172,68 @@ try {
 				<p>Loading...</p>
 			)
 		}
+		
+		<script>
+			function filterRecipes() {
+				const urlParams = new URLSearchParams(window.location.search);
+				const query = urlParams.get('q');
+				
+				const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+				const searchInfo = document.getElementById('searchInfo') as HTMLDivElement;
+				const searchText = document.getElementById('searchText') as HTMLSpanElement;
+				const pageTitle = document.getElementById('pageTitle') as HTMLHeadingElement;
+				const recipeCards = document.querySelectorAll('.recipe-card');
+				const noResults = document.getElementById('noResults') as HTMLParagraphElement;
+				
+				if (query && query.trim()) {
+					const searchTerm = query.toLowerCase().trim();
+
+					if (searchInput) {
+						searchInput.value = query;
+					}
+					
+					let visibleCount = 0;
+					recipeCards.forEach((card) => {
+						const recipeName = (card as HTMLElement).dataset.recipeName || '';
+						if (recipeName.includes(searchTerm)) {
+							card.classList.remove('hidden');
+							visibleCount++;
+						} else {
+							card.classList.add('hidden');
+						}
+					});
+					
+					if (searchInfo && searchText) {
+						searchInfo.style.display = 'flex';
+						searchText.innerHTML = `🔍 Search results for: <strong>"${query}"</strong> (${visibleCount} recipe${visibleCount !== 1 ? 's' : ''} found)`;
+					}
+					
+					if (pageTitle) {
+						pageTitle.textContent = 'Search Results';
+					}
+					
+					if (noResults) {
+						noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+						if (visibleCount === 0) {
+							noResults.textContent = `No recipes found for "${query}".`;
+						}
+					}
+				} else {
+					recipeCards.forEach((card) => {
+						card.classList.remove('hidden');
+					});
+					
+					if (searchInfo) {
+						searchInfo.style.display = 'none';
+					}
+					
+					if (noResults) {
+						noResults.style.display = 'none';
+					}
+				}
+			}
+
+			filterRecipes();
+		</script>
 	</body>
 </html>

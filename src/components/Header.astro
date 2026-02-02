@@ -161,6 +161,7 @@
             <input
                 type="search"
                 id="searchInput"
+                name="q"
                 placeholder="Search for recipes..."
                 aria-label="Search recipes"
             />
@@ -169,3 +170,17 @@
         <button class="login">Login</button>
     </header>
 </div>
+
+<script>
+    const searchForm = document.getElementById('searchForm') as HTMLFormElement;
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    searchForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (query) {
+            window.location.href = `/?q=${encodeURIComponent(query)}`;
+        } else {
+            window.location.href = '/';
+        }
+    });
+</script>
