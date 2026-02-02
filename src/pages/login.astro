@@ -1,9 +1,8 @@
 ---
-// export const prerender = false
+export const prerender = false
 import Error from '../components/Error.astro'
 
 let error: string | null = null
-let token: string | null = null
 
 if (Astro.request.method === 'POST') {
   try {
@@ -23,13 +22,20 @@ if (Astro.request.method === 'POST') {
     if (!res.ok) throw new Error()
 
     const data = await res.json()
-    token = data.token
+    const token = data.token
+
+    Astro.cookies.set('auth_token', token, {
+      httpOnly: true,
+      secure: import.meta.env.PROD,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24, // one day
+    })
+
+    return Astro.redirect('/favourites')
   } catch {
-    error = 'Check your credentials'
+    error = 'Wrong credentials'
   }
-}
-if (token) {
-  return Astro.redirect('/favourites')
 }
 ---
 

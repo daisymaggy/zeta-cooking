@@ -1,0 +1,7 @@
+---
+export const prerender = false
+Astro.cookies.delete('auth_token', {
+  path: '/',
+})
+return Astro.redirect('/login')
+---
