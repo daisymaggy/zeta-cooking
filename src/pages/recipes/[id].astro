@@ -2,6 +2,7 @@
 import Error from "../../components/Error.astro";
 import RecipeCard from "../../components/RecipeCard.astro";
 import type { Recipe } from "../../types/recipe";
+import Header from "../../components/Header.astro";
 export const prerender = false;
 
 const { id } = Astro.params;
@@ -55,12 +56,13 @@ if (!id) {
     <title>{recipeData?.name || 'Recette'}</title>
     <style>
         body {
+            font-family: system-ui, sans-serif;
+            margin: 20px;
+        }
+        .content {
             display: flex;
             justify-content: center;
             gap: 10rem;
-            font-family: system-ui, sans-serif;
-            margin: 0;
-            padding: 2rem;
         }
         .recipe-header {
             margin-bottom: 2rem;
@@ -88,67 +90,71 @@ if (!id) {
     </style>
 </head>
 <body>
-    {error ? (
-        <Error error={error}/>
-    ) : recipeData ? (
-        <div>
-            <div class="recipe-header">
-                <h1>{recipeData.name}</h1>
-                    <p style="text-transform:uppercase">{recipeData.when_to_eat}</p>
-                {recipeData.image_url && (
-                    <img 
-                        src={recipeData.image_url} 
-                        alt={recipeData.name}
-                        class="recipe-image"
-                    />
-                )}                
-                <p style="font-style: italic">{recipeData.description}</p>
-            </div>
+    <Header />
 
-            <div class="recipe-meta">
-                <div>⏱️ Preparation : {recipeData.prep_time} min</div>
-                <div>🍳 Cooking Time : {recipeData.cook_time} min</div>
-                <div>🍽️ Servings : {recipeData.servings}</div>
-                <div>🔥 Calories : {recipeData.calories} kcal</div>
-            </div>
+    <div class="content">
+        {error ? (
+            <Error error={error}/>
+        ) : recipeData ? (
+            <div>
+                <div class="recipe-header">
+                    <h1>{recipeData.name}</h1>
+                        <p style="text-transform:uppercase">{recipeData.when_to_eat}</p>
+                    {recipeData.image_url && (
+                        <img 
+                            src={recipeData.image_url} 
+                            alt={recipeData.name}
+                            class="recipe-image"
+                        />
+                    )}                
+                    <p style="font-style: italic">{recipeData.description}</p>
+                </div>
 
-            <div class="recipe-section">
-                <h2>Instructions</h2>
-                <p style="white-space: pre-wrap;">{recipeData.instructions}</p>
-            </div>
+                <div class="recipe-meta">
+                    <div>⏱️ Preparation : {recipeData.prep_time} min</div>
+                    <div>🍳 Cooking Time : {recipeData.cook_time} min</div>
+                    <div>🍽️ Servings : {recipeData.servings}</div>
+                    <div>🔥 Calories : {recipeData.calories} kcal</div>
+                </div>
 
-            {recipeData.disclaimer && (
                 <div class="recipe-section">
-                    <p><em>{recipeData.disclaimer}</em></p>
+                    <h2>Instructions</h2>
+                    <p style="white-space: pre-wrap;">{recipeData.instructions}</p>
                 </div>
-            )}
 
-            <div class="recipe-section" style="color: #999; font-size: 0.9em;">
-                <p style="font-style: italic">by {recipeData.created_by}</p>
-                <p>{new Date(recipeData.created_at).toLocaleDateString('fr-FR')}</p>
-            </div>
-        </div>
-        <div>
-            <h1>Related Recipes</h1>
-            {relatedRecipesData.length > 0 ? (
-                <div class="related-recipes">
-                    {relatedRecipesData.map((recipe) => (
-                            <RecipeCard 
-                                title={recipe.name}
-                                image_url={recipe.image_url}
-                                name={recipe.name}
-                                description={recipe.description}
-                                id={recipe.id}
-                                when_to_eat={recipe.when_to_eat}
-                            />
-                    ))}
+                {recipeData.disclaimer && (
+                    <div class="recipe-section">
+                        <p><em>{recipeData.disclaimer}</em></p>
+                    </div>
+                )}
+
+                <div class="recipe-section" style="color: #999; font-size: 0.9em;">
+                    <p style="font-style: italic">by {recipeData.created_by}</p>
+                    <p>{new Date(recipeData.created_at).toLocaleDateString('fr-FR')}</p>
                 </div>
-            ) : (
-                <p>No related recipes.</p>
-            )}
-        </div>
-    ) : (
-        <p>Loading...</p>
-    )}
+            </div>
+            <div>
+                <h1>Related Recipes</h1>
+                {relatedRecipesData.length > 0 ? (
+                    <div class="related-recipes">
+                        {relatedRecipesData.map((recipe) => (
+                                <RecipeCard 
+                                    title={recipe.name}
+                                    image_url={recipe.image_url}
+                                    name={recipe.name}
+                                    description={recipe.description}
+                                    id={recipe.id}
+                                    when_to_eat={recipe.when_to_eat}
+                                />
+                        ))}
+                    </div>
+                ) : (
+                    <p>No related recipes.</p>
+                )}
+            </div>
+        ) : (
+            <p>Loading...</p>
+        )}
+    </div>
 </body>
 </html>

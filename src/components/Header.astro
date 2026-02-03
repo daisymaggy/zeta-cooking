@@ -1,0 +1,186 @@
+---
+// src/components/Header.astro
+---
+
+<style>
+    :root {
+        --accent: #fb923c;
+        --accent-hover: #f97316;
+    }
+
+    .header-wrapper {
+        margin: -20px -20px 0 -20px;
+        padding: 16px 24px;
+        background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        justify-content: space-between;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .brand {
+        font-weight: 800;
+        font-size: 22px;
+        letter-spacing: -0.5px;
+        text-decoration: none;
+        color: #111827;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .brand::before {
+        content: "👨‍🍳";
+        font-size: 24px;
+    }
+
+    .brand:hover {
+        color: var(--accent);
+    }
+
+    .search {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        max-width: 600px;
+        margin: 0 20px;
+        position: relative;
+    }
+
+    .search input {
+        flex: 1;
+        padding: 11px 16px 11px 42px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        background: #ffffff;
+        outline: none;
+        height: 44px;
+        font-size: 15px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .search input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+    }
+
+    .search input::placeholder {
+        color: #9ca3af;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        font-size: 18px;
+        opacity: 0.5;
+    }
+
+    .search button {
+        display: none; /* Caché, la recherche se fait automatiquement */
+    }
+
+    .login {
+        padding: 11px 24px;
+        background: linear-gradient(
+            135deg,
+            var(--accent) 0%,
+            var(--accent-hover) 100%
+        );
+        color: #fff;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        height: 44px;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(251, 146, 60, 0.25);
+    }
+
+    .login:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(251, 146, 60, 0.35);
+    }
+
+    .login:active {
+        transform: translateY(0);
+    }
+
+    @media (max-width: 720px) {
+        .header-wrapper {
+            padding: 12px 16px;
+        }
+
+        .topbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .brand {
+            font-size: 20px;
+        }
+
+        .search {
+            order: 2;
+            width: 100%;
+            margin: 0;
+        }
+
+        .login {
+            order: 3;
+            align-self: stretch;
+        }
+    }
+</style>
+
+<div class="header-wrapper">
+    <header class="topbar">
+        <a href="/" class="brand">ZetaCooking</a>
+        <form class="search" role="search" id="searchForm">
+            <span class="search-icon">🔍</span>
+            <input
+                type="search"
+                id="searchInput"
+                name="q"
+                placeholder="Search for recipes..."
+                aria-label="Search recipes"
+            />
+            <button type="submit" aria-label="Search">Search</button>
+        </form>
+        <button class="login">Login</button>
+    </header>
+</div>
+
+<script>
+    const searchForm = document.getElementById('searchForm') as HTMLFormElement;
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    searchForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (query) {
+            window.location.href = `/?q=${encodeURIComponent(query)}`;
+        } else {
+            window.location.href = '/';
+        }
+    });
+</script>
