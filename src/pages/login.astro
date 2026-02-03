@@ -1,6 +1,7 @@
 ---
 export const prerender = false
 import Error from '../components/Error.astro'
+import Header from '../components/Header.astro'
 
 let error: string | null = null
 
@@ -39,12 +40,22 @@ if (Astro.request.method === 'POST') {
 }
 ---
 
-<h1>Login</h1>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <Header />
 
-{error && <Error error={error} />}
+    <h1>Login</h1>
 
-<form method="POST">
-  <input name="username" required />
-  <input name="password" type="password" required />
-  <button>Login</button>
-</form>
+    {error && <Error error={error} />}
+
+    <form method="POST">
+      <input name="username" required />
+      <input name="password" type="password" required />
+      <button>Login</button>
+    </form>
+  </body>
+</html>
