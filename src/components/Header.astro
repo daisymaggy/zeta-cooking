@@ -1,5 +1,6 @@
 ---
 // src/components/Header.astro
+const isLoggedIn = !!Astro.cookies.get('auth_token')?.value
 ---
 
 <style>
@@ -148,7 +149,6 @@
     }
   }
 </style>
-
 <div class="header-wrapper">
   <header class="topbar">
     <a href="/" class="brand">ZetaCooking</a>
@@ -163,7 +163,17 @@
       />
       <button type="submit" aria-label="Search">Search</button>
     </form>
-    <button class="login" id="login">Login</button>
+    {
+      isLoggedIn ? (
+        <a href="/logout">
+          <button class="login">Logout</button>
+        </a>
+      ) : (
+        <a href="/login">
+          <button class="login">Login</button>
+        </a>
+      )
+    }
   </header>
 </div>
 
@@ -178,9 +188,5 @@
     } else {
       window.location.href = '/'
     }
-  })
-  const login = document.getElementById('login') as HTMLButtonElement
-  login.addEventListener('click', () => {
-    window.location.href = '/login'
   })
 </script>
