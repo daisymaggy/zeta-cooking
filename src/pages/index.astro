@@ -10,7 +10,13 @@ let error: string | null = null;
 let allRecipesData: Recipe[] = [];
 try {
 	const response = await fetch(
-		`${Astro.url.origin}/api/all_recipes/all.json`,
+		`https://gourmet.cours.quimerch.com/recipes`,
+		{
+			method: "GET",
+			headers: {
+				'Accept': 'application/json'
+			}
+		}
 	);
 	if (response.ok) {
 		allRecipesData = await response.json();
