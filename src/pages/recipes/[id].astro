@@ -205,56 +205,91 @@ if (!id) {
         )}
     </div>
     <script type="module">
-        document.addEventListener("DOMContentLoaded", () => {
-            const favBtn = document.querySelector(".favorite-btn");
+        document.addEventListener("DOMContentLoaded", async () => {
+        const favBtn = document.querySelector(".favorite-btn");
+        if (!favBtn) return;
 
-            const isLoggedIn = favBtn.dataset.loggedIn === "true";
-            const id = favBtn.dataset.id;
+        const id = favBtn.dataset.id;
 
-            if (!favBtn) return;
+        const setUI = (favorited) => {
+            favBtn.dataset.favorited = favorited ? "true" : "false";
+            favBtn.style.color = favorited ? "red" : "#999";
+        };
 
-            if (!isLoggedIn) {
-                favBtn.style.opacity = "0.4";
-                favBtn.style.cursor = "not-allowed";
-                favBtn.title = "Login required";
-                favBtn.addEventListener("click", () => {
-                    window.location.href = "/login";
-                });
-                return;
-            }
+        const setLoggedOutUI = () => {
+            favBtn.dataset.loggedIn = "false";
+            favBtn.style.opacity = "0.4";
+            favBtn.style.cursor = "not-allowed";
+            favBtn.title = "Login required";
+            favBtn.removeEventListener("click", toggleFavorite);
+            favBtn.addEventListener("click", () => {
+                window.location.href = "/login";
+            });
+        };
 
-            const setUI = (favorited) => {
-                favBtn.dataset.favorited = favorited ? "true" : "false";
-                favBtn.style.color = favorited ? "red" : "#999";
-            };
+        const toggleFavorite = async () => {
+            const favorited = favBtn.dataset.favorited === "true";
 
-            favBtn.addEventListener("click", async () => {
-                const favorited = favBtn.dataset.favorited === "true";
-                try {
+            try {
                 const res = await fetch(
                     favorited
                         ? "/api/favorites/removeFavorite.json"
-                        : "/api/favorites/addFavorite.json", 
+                        : "/api/favorites/addFavorite.json",
                     {
                         method: favorited ? "DELETE" : "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "same-origin",
-                        body: JSON.stringify({
-                        id,
-                        }),
-                    });
+                        body: JSON.stringify({ id }),
+                    }
+                );
+
+                if (res.status === 401) {
+                    alert("Votre session a expiré. Veuillez vous reconnecter.");
+                    window.location.href = "/logout";
+                    return;
+                }
 
                 if (!res.ok) {
                     console.error("Failed to toggle favorite");
                     return;
                 }
 
-                setUI(!favorited)
-                } catch (err) {
+                setUI(!favorited);
+            } catch (err) {
                 console.error(err);
-                }
+            }
+        };
+
+        const isLoggedIn = favBtn.dataset.loggedIn === "true";
+
+        if (!isLoggedIn) {
+            setLoggedOutUI();
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/favorites/getFavorites.json", {
+                credentials: "same-origin",
             });
-        })
+
+            if (res.status === 401) {
+                alert("Votre session a expiré. Veuillez vous reconnecter.");
+                window.location.href = "/logout";
+                return;
+            }
+
+            if (res.ok) {
+                const favorites = await res.json();
+                const isFavorited = favorites.some(fav => String(fav.recipe.id) === String(id));
+                setUI(isFavorited);
+            }
+        } catch (err) {
+            console.error("Failed to load favorites", err);
+        }
+
+        favBtn.addEventListener("click", toggleFavorite);
+    });
+
     </script>
 
 
