@@ -5,6 +5,7 @@ import type { APIRoute } from "astro";
 export const DELETE: APIRoute = async ({ request, cookies }) => {
     try {
         const token = cookies.get("auth_token")?.value;
+        const username = cookies.get("username")?.value;
 
         if (!token) {
             return new Response(JSON.stringify({ error: "Non authentifié" }), {
@@ -13,7 +14,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
             });
         }
 
-        const { username, id } = await request.json();
+        const { id } = await request.json();
 
         if (!username || !id) {
             return new Response(JSON.stringify({ error: "Username ou ID manquant" }), {
@@ -35,10 +36,8 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
             }
         );
 
-        const data = await res.json();
-
         if (!res.ok) {
-            return new Response(JSON.stringify({ error: data.message || "Echec de la suppression de la recette des favoris" }), {
+            return new Response(JSON.stringify({ error: "Echec de la suppression de la recette des favoris" }), {
                 status: res.status,
                 headers: { "Content-Type": "application/json" }
             });
@@ -46,13 +45,14 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
 
 
         return new Response(
-            JSON.stringify(data),
+            JSON.stringify({ success: true }),
             {
                 status: 200,
                 headers: { "Content-Type": "application/json" }
             }
         );
     } catch (error) {
+        console.log(error.message);
         return new Response(JSON.stringify({ error: "Erreur serveur" }), {
             status: 500,
             headers: { "Content-Type": "application/json" }

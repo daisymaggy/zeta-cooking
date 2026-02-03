@@ -5,6 +5,7 @@ import type { APIRoute } from "astro";
 export const GET: APIRoute = async ({ request, cookies }) => {
     try {
         const token = cookies.get("auth_token")?.value;
+        const username = cookies.get("username")?.value;
 
         if (!token) {
             return new Response(JSON.stringify({ error: "Non authentifié" }), {
@@ -12,8 +13,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
                 headers: { "Content-Type": "application/json" },
             });
         }
-
-        const { username } = await request.json();
 
         if (!username) {
             return new Response(JSON.stringify({ error: "Username ou ID manquant" }), {

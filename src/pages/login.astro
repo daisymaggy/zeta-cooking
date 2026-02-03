@@ -7,6 +7,7 @@ let error: string | null = null
 if (Astro.request.method === 'POST') {
   try {
     const formData = await Astro.request.formData()
+    const username = formData.get('username')
 
     const res = await fetch('https://gourmet.cours.quimerch.com/login', {
       method: 'POST',
@@ -14,7 +15,7 @@ if (Astro.request.method === 'POST') {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username: formData.get('username'),
+        username: username,
         password: formData.get('password'),
       }),
     })
@@ -31,6 +32,14 @@ if (Astro.request.method === 'POST') {
       path: '/',
       maxAge: 60 * 60 * 24, // one day
     })
+
+    Astro.cookies.set('username', String(username), {
+      httpOnly: false,
+      secure: import.meta.env.PROD,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24, // one day
+    });
 
     return Astro.redirect('/favourites')
   } catch (e) {
