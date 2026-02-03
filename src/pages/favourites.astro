@@ -1,19 +1,16 @@
 ---
 export const prerender = false
-
-// export async function GET() {
-//   let number = Math.random();
-//   return new Response(
-//     JSON.stringify({
-//       number,
-//       message: `Here's a random number: ${number}`,
-//     }),
-//   );
-// }
-
-// const {n} = await GET();
+import Header from '../components/Header.astro'
 ---
 
-<h1>My favourites</h1>
-<div>Hello</div>
-<a href="/logout">Log out</a>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <Header />
+    <h1>My favourites</h1>
+    <div>Hello</div>
+  </body>
+</html>
