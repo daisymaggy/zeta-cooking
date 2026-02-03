@@ -3,7 +3,7 @@ import RecipeCard from "../components/RecipeCard.astro";
 import Error from "../components/Error.astro";
 import type { Recipe } from "../types/recipe";
 import Header from "../components/Header.astro";
-
+export const prerender =false
 const searchQuery = Astro.url.searchParams.get('q') || '';
 
 let error: string | null = null;

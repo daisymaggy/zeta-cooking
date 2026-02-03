@@ -1,0 +1,163 @@
+---
+import Error from '../components/Error.astro'
+import Header from '../components/Header.astro'
+export const prerender = false
+let error: string | null = null
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    const res = await fetch('https://gourmet.cours.quimerch.com/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: formData.get('username'),
+        password: formData.get('password'),
+      }),
+    })
+
+    if (!res.ok) throw new Error()
+
+    const data = await res.json()
+    const token = data.token
+
+    Astro.cookies.set('auth_token', token, {
+      httpOnly: true,
+      secure: import.meta.env.PROD,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24, // one day
+    })
+
+    return Astro.redirect('/favourites')
+  } catch (e) {
+    error = 'Wrong credentials'
+    console.log(e)
+  }
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      :root {
+        --accent: #fb923c;
+        --accent-hover: #f97316;
+      }
+
+      body {
+        background: #fafafa;
+        font-family: system-ui, sans-serif;
+        margin: 20px;
+        color: #111827;
+      }
+
+      .login-title {
+        text-align: center;
+        margin-top: 40px;
+        margin-bottom: 16px;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #111827;
+      }
+
+      .login-card {
+        max-width: 420px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 28px;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      }
+
+      .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .login-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .login-form input {
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        background: #f9fafb;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      .login-form input:focus {
+        background: #ffffff;
+        border-color: var(--accent);
+        box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+      }
+
+      .login-form button {
+        margin-top: 8px;
+        height: 44px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15px;
+        color: #ffffff;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        box-shadow: 0 2px 8px rgba(251, 146, 60, 0.25);
+        transition: all 0.2s ease;
+      }
+
+      .login-form button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(251, 146, 60, 0.35);
+      }
+
+      .login-form button:active {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 480px) {
+        .login-card {
+          margin: 0 16px;
+          padding: 20px;
+        }
+      }
+    </style></head
+  >
+
+  <body>
+    <Header />
+
+    <h1 class="login-title">Login</h1>
+
+    {error && <Error error={error} />}
+    <div class="login-card">
+      <form method="POST" class="login-form">
+        <label>
+          Username
+          <input name="username" required />
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" required />
+          <button>Login</button>
+        </label>
+      </form>
+    </div>
+  </body>
+</html>
