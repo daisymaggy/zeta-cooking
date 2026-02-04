@@ -122,6 +122,24 @@ const isLoggedIn = !!Astro.cookies.get('auth_token')?.value
     transform: translateY(0);
   }
 
+  .auth-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .login.secondary {
+    background: white;
+    color: #111827;
+    border: 2px solid #e5e7eb;
+    box-shadow: none;
+  }
+
+  .login.secondary:hover {
+    background: #f9fafb;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
   @media (max-width: 720px) {
     .header-wrapper {
       padding: 12px 16px;
@@ -165,9 +183,14 @@ const isLoggedIn = !!Astro.cookies.get('auth_token')?.value
     </form>
     {
       isLoggedIn ? (
-        <a href="/logout">
-          <button class="login">Logout</button>
-        </a>
+        <div class="auth-actions">
+          <a href="/favourites">
+            <button class="login secondary">My favorites</button>
+          </a>
+          <a href="/logout">
+            <button class="login">Logout</button>
+          </a>
+        </div>
       ) : (
         <a href="/login">
           <button class="login">Login</button>

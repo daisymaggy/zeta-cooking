@@ -244,7 +244,7 @@ if (!id) {
                 );
 
                 if (res.status === 401) {
-                    alert("Votre session a expiré. Veuillez vous reconnecter.");
+                    alert("Your session has expired. Please log in again.");
                     window.location.href = "/logout";
                     return;
                 }
@@ -273,7 +273,7 @@ if (!id) {
             });
 
             if (res.status === 401) {
-                alert("Votre session a expiré. Veuillez vous reconnecter.");
+                alert("Your session has expired. Please log in again.");
                 window.location.href = "/logout";
                 return;
             }
