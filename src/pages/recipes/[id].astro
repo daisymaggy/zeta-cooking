@@ -7,6 +7,10 @@ import Header from "../../components/Header.astro";
 
 const { id } = Astro.params;
 
+const isLoggedIn = !!Astro.cookies.get("auth_token")?.value;
+const username = Astro.cookies.get("username")?.value ?? null;
+
+
 let recipeData: Recipe | null = null;
 let error: string | null = null;
 
@@ -67,6 +71,27 @@ if (!id) {
         .recipe-header {
             margin-bottom: 2rem;
         }
+        .recipe-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            color: #999; /* couleur du cœur */
+            transition: transform 0.2s;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
         .recipe-image {
             width: 100%;
             max-height: 400px;
@@ -98,7 +123,30 @@ if (!id) {
         ) : recipeData ? (
             <div>
                 <div class="recipe-header">
-                    <h1>{recipeData.name}</h1>
+                    <div class="recipe-title">
+                        <h1>{recipeData.name}</h1>
+                        <button class="favorite-btn" 
+                            data-logged-in={isLoggedIn ? "true" : "false"}
+                            data-username={username}
+                            data-id={id}
+                            data-favorited="false"
+                            title="Ajouter aux favoris">
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                width="32" 
+                                height="32" 
+                                viewBox="0 0 24 24" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                stroke-width="2" 
+                                stroke-linecap="round" 
+                                stroke-linejoin="round"
+                            >
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                            </svg>
+                        </button>
+
+                    </div>
                         <p style="text-transform:uppercase">{recipeData.when_to_eat}</p>
                     {recipeData.image_url && (
                         <img 
@@ -156,5 +204,94 @@ if (!id) {
             <p>Loading...</p>
         )}
     </div>
+    <script type="module">
+        document.addEventListener("DOMContentLoaded", async () => {
+        const favBtn = document.querySelector(".favorite-btn");
+        if (!favBtn) return;
+
+        const id = favBtn.dataset.id;
+
+        const setUI = (favorited) => {
+            favBtn.dataset.favorited = favorited ? "true" : "false";
+            favBtn.style.color = favorited ? "red" : "#999";
+        };
+
+        const setLoggedOutUI = () => {
+            favBtn.dataset.loggedIn = "false";
+            favBtn.style.opacity = "0.4";
+            favBtn.style.cursor = "not-allowed";
+            favBtn.title = "Login required";
+            favBtn.removeEventListener("click", toggleFavorite);
+            favBtn.addEventListener("click", () => {
+                window.location.href = "/login";
+            });
+        };
+
+        const toggleFavorite = async () => {
+            const favorited = favBtn.dataset.favorited === "true";
+
+            try {
+                const res = await fetch(
+                    favorited
+                        ? "/api/favorites/removeFavorite.json"
+                        : "/api/favorites/addFavorite.json",
+                    {
+                        method: favorited ? "DELETE" : "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "same-origin",
+                        body: JSON.stringify({ id }),
+                    }
+                );
+
+                if (res.status === 401) {
+                    alert("Your session has expired. Please log in again.");
+                    window.location.href = "/logout";
+                    return;
+                }
+
+                if (!res.ok) {
+                    console.error("Failed to toggle favorite");
+                    return;
+                }
+
+                setUI(!favorited);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        const isLoggedIn = favBtn.dataset.loggedIn === "true";
+
+        if (!isLoggedIn) {
+            setLoggedOutUI();
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/favorites/getFavorites.json", {
+                credentials: "same-origin",
+            });
+
+            if (res.status === 401) {
+                alert("Your session has expired. Please log in again.");
+                window.location.href = "/logout";
+                return;
+            }
+
+            if (res.ok) {
+                const favorites = await res.json();
+                const isFavorited = favorites.some(fav => String(fav.recipe.id) === String(id));
+                setUI(isFavorited);
+            }
+        } catch (err) {
+            console.error("Failed to load favorites", err);
+        }
+
+        favBtn.addEventListener("click", toggleFavorite);
+    });
+
+    </script>
+
+
 </body>
 </html>

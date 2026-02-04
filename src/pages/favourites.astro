@@ -1,16 +1,88 @@
 ---
-export const prerender = false
-import Header from '../components/Header.astro'
+import RecipeCard from "../components/RecipeCard.astro";
+import Error from "../components/Error.astro";
+import Header from "../components/Header.astro";
+
+export const prerender = false;
+
+const token = Astro.cookies.get("auth_token")?.value;
+const username = Astro.cookies.get("username")?.value;
+let error: string | null = null;
+let favoriteRecipes;
+
+if (!token || !username) {
+  error = "You need to be connected to see your favorite recipes.";
+} else {
+  try {
+    const res = await fetch(`${Astro.url.origin}/api/favorites/getFavorites.json`, 
+      {
+        headers: {
+          cookie: Astro.request.headers.get("cookie") ?? "",
+        },
+      }
+    );
+    if (res.ok) {
+      favoriteRecipes = await res.json();
+      console.log(favoriteRecipes);
+    } else if (res.status === 401) {
+      Astro.cookies.delete("auth_token", { path: "/" });
+      Astro.cookies.delete("username", { path: "/" });
+      return Astro.redirect("/login");
+    } else {
+      const data = await res.json();
+      error = data.error || "Error while getting your favorite recipes";
+    }
+  } catch (e) {
+    console.error(e);
+    error = "Error while getting your favorite recipes";
+  }
+}
 ---
 
-<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My favorites - ZetaCooking</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 20px;
+        background: white;
+        color: #111827;
+      }
+      h1 {
+        margin-bottom: 1rem;
+      }
+      .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+      }
+    </style>
   </head>
   <body>
     <Header />
-    <h1>My favourites</h1>
-    <div>Hello</div>
+
+    <h1>My favorites</h1>
+
+    {error ? (
+      <Error error={error} />
+    ) : favoriteRecipes.length > 0 ? (
+      <div class="favorites-grid">
+        {favoriteRecipes.map((recipe) => (
+          <RecipeCard
+            title={recipe.recipe.name}
+            image_url={recipe.recipe.image_url}
+            name={recipe.recipe.name}
+            description={recipe.recipe.description}
+            id={recipe.recipe.id}
+            when_to_eat={recipe.recipe.when_to_eat}
+          />
+        ))}
+      </div>
+    ) : (
+      <p>You don't have any favorite recipe yet.</p>
+    )}
   </body>
 </html>
