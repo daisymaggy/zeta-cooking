@@ -28,6 +28,7 @@ ENV PORT=4321
 # Just convention, not required
 EXPOSE 4321
 
-# Serve the built static site with `astro preview` (project uses static output)
 # Use the local binary copied in `node_modules` so we don't need package.json present
-CMD ["node_modules/.bin/astro", "preview", "--host", "0.0.0.0", "--port", "4321"]
+# CMD ["node_modules/.bin/astro", "preview", "--host", "0.0.0.0", "--port", "4321"]
+
+CMD ["node", "./dist/server/entry.mjs"]

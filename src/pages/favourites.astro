@@ -1,40 +1,37 @@
 ---
-import RecipeCard from "../components/RecipeCard.astro";
-import Error from "../components/Error.astro";
-import Header from "../components/Header.astro";
+import RecipeCard from '../components/RecipeCard.astro'
+import Error from '../components/Error.astro'
+import Header from '../components/Header.astro'
 
-export const prerender = false;
+export const prerender = false
 
-const token = Astro.cookies.get("auth_token")?.value;
-const username = Astro.cookies.get("username")?.value;
-let error: string | null = null;
-let favoriteRecipes;
+const token = Astro.cookies.get('auth_token')?.value
+const username = Astro.cookies.get('username')?.value
+let error: string | null = null
+let favoriteRecipes
 
 if (!token || !username) {
-  error = "You need to be connected to see your favorite recipes.";
+  error = 'You need to be connected to see your favorite recipes.'
 } else {
   try {
-    const res = await fetch(`${Astro.url.origin}/api/favorites/getFavorites.json`, 
-      {
-        headers: {
-          cookie: Astro.request.headers.get("cookie") ?? "",
-        },
-      }
-    );
+    const res = await fetch(`${Astro.url.origin}/api/favorites/getFavorites.json`, {
+      headers: {
+        cookie: Astro.request.headers.get('cookie') ?? '',
+      },
+    })
     if (res.ok) {
-      favoriteRecipes = await res.json();
-      console.log(favoriteRecipes);
+      favoriteRecipes = await res.json()
     } else if (res.status === 401) {
-      Astro.cookies.delete("auth_token", { path: "/" });
-      Astro.cookies.delete("username", { path: "/" });
-      return Astro.redirect("/login");
+      Astro.cookies.delete('auth_token', { path: '/' })
+      Astro.cookies.delete('username', { path: '/' })
+      return Astro.redirect('/login')
     } else {
-      const data = await res.json();
-      error = data.error || "Error while getting your favorite recipes";
+      const data = await res.json()
+      error = data.error || 'Error while getting your favorite recipes'
     }
   } catch (e) {
-    console.error(e);
-    error = "Error while getting your favorite recipes";
+    console.error(e)
+    error = 'Error while getting your favorite recipes'
   }
 }
 ---
@@ -66,23 +63,25 @@ if (!token || !username) {
 
     <h1>My favorites</h1>
 
-    {error ? (
-      <Error error={error} />
-    ) : favoriteRecipes.length > 0 ? (
-      <div class="favorites-grid">
-        {favoriteRecipes.map((recipe) => (
-          <RecipeCard
-            title={recipe.recipe.name}
-            image_url={recipe.recipe.image_url}
-            name={recipe.recipe.name}
-            description={recipe.recipe.description}
-            id={recipe.recipe.id}
-            when_to_eat={recipe.recipe.when_to_eat}
-          />
-        ))}
-      </div>
-    ) : (
-      <p>You don't have any favorite recipe yet.</p>
-    )}
+    {
+      error ? (
+        <Error error={error} />
+      ) : favoriteRecipes.length > 0 ? (
+        <div class="favorites-grid">
+          {favoriteRecipes.map((recipe) => (
+            <RecipeCard
+              title={recipe.recipe.name}
+              image_url={recipe.recipe.image_url}
+              name={recipe.recipe.name}
+              description={recipe.recipe.description}
+              id={recipe.recipe.id}
+              when_to_eat={recipe.recipe.when_to_eat}
+            />
+          ))}
+        </div>
+      ) : (
+        <p>You don't have any favorite recipe yet.</p>
+      )
+    }
   </body>
 </html>
