@@ -3,50 +3,6 @@ import Error from '../components/Error.astro'
 import Header from '../components/Header.astro'
 export const prerender = false
 let error: string | null = null
-
-if (Astro.request.method === 'POST') {
-  try {
-    const formData = await Astro.request.formData()
-    const username = formData.get('username')
-
-    const res = await fetch('https://gourmet.cours.quimerch.com/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username,
-        password: formData.get('password'),
-      }),
-    })
-
-    if (!res.ok) throw new Error()
-
-    const data = await res.json()
-    const token = data.token
-
-    Astro.cookies.set('auth_token', token, {
-      httpOnly: true,
-      secure: import.meta.env.PROD,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24, // one day
-    })
-
-    Astro.cookies.set('username', String(username), {
-      httpOnly: false,
-      secure: import.meta.env.PROD,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24, // one day
-    });
-
-    return Astro.redirect('/favourites')
-  } catch (e) {
-    error = 'Wrong credentials'
-    console.log(e)
-  }
-}
 ---
 
 <!doctype html>
@@ -156,7 +112,7 @@ if (Astro.request.method === 'POST') {
 
     {error && <Error error={error} />}
     <div class="login-card">
-      <form method="POST" class="login-form">
+      <form method="POST" action="/api/login" class="login-form">
         <label>
           Username
           <input name="username" required />
@@ -164,8 +120,8 @@ if (Astro.request.method === 'POST') {
         <label>
           Password
           <input name="password" type="password" required />
-          <button>Login</button>
         </label>
+        <button>Login</button>
       </form>
     </div>
   </body>
