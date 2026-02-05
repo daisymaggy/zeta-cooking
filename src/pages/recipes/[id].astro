@@ -4,6 +4,7 @@ import Error from "../../components/Error.astro";
 import RecipeCard from "../../components/RecipeCard.astro";
 import type { Recipe } from "../../types/recipe";
 import Header from "../../components/Header.astro";
+import { getRecipeById, getRelatedRecipes } from "../../lib/recipes";
 
 const { id } = Astro.params;
 
@@ -13,43 +14,53 @@ const username = Astro.cookies.get("username")?.value ?? null;
 
 let recipeData: Recipe | null = null;
 let error: string | null = null;
-
-if (!id) {
-    error = "Recipe ID is missing";
-} else {
-    try {
-        const response = await fetch(`${Astro.url.origin}/api/recipes/${id}.json`);
-        
-        if (response.ok) {
-            recipeData = await response.json();
-        } else {
-            const errorData = await response.json();
-            error = errorData.error || "Recipe not found";
-        }
-    } catch (e) {
-        error = "Error loading the recipe";
-        console.error(e);
-    }
-}
-
 let relatedRecipesData: Recipe[] = [];
+
 if (!id) {
-    error = "Recipe ID is missing";
+  error = "Recipe ID is missing";
 } else {
-    try {
-        const response = await fetch(`${Astro.url.origin}/api/related/${id}.json`);
-        
-        if (response.ok) {
-            relatedRecipesData = await response.json();
-        } else {
-            const errorData = await response.json();
-            error = errorData.error || "Recipe not found";
-        }
-    } catch (e) {
-        error = "Error loading the recipe";
-        console.error(e);
-    }
+  try {
+    recipeData = await getRecipeById(id);
+    relatedRecipesData = await getRelatedRecipes(id);
+  } catch (e) {
+    error = "Error loading the recipe";
+  }
 }
+// if (!id) {
+//     error = "Recipe ID is missing";
+// } else {
+//     try {
+//         const response = await fetch(`${Astro.url.origin}/api/recipes/${id}.json`);
+        
+//         if (response.ok) {
+//             recipeData = await response.json();
+//         } else {
+//             const errorData = await response.json();
+//             error = errorData.error || "Recipe not found";
+//         }
+//     } catch (e) {
+//         error = "Error loading the recipe";
+//         console.error(e);
+//     }
+// }
+
+// if (!id) {
+//     error = "Recipe ID is missing";
+// } else {
+//     try {
+//         const response = await fetch(`${Astro.url.origin}/api/related/${id}.json`);
+        
+//         if (response.ok) {
+//             relatedRecipesData = await response.json();
+//         } else {
+//             const errorData = await response.json();
+//             error = errorData.error || "Recipe not found";
+//         }
+//     } catch (e) {
+//         error = "Error loading the recipe";
+//         console.error(e);
+//     }
+// }
 ---
 
 <!DOCTYPE html>
