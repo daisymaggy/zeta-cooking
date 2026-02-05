@@ -2,34 +2,26 @@
 import RecipeCard from '../components/RecipeCard.astro'
 import Error from '../components/Error.astro'
 import Header from '../components/Header.astro'
+import { getFavorites } from '../lib/recipes'
 
 export const prerender = false
 
 const token = Astro.cookies.get('auth_token')?.value
 const username = Astro.cookies.get('username')?.value
 let error: string | null = null
-let favoriteRecipes
+let favoriteRecipes: any[] = []
 
 if (!token || !username) {
-  error = 'You need to be connected to see your favorite recipes.'
+  error = 'You need to be logged in to see your favorite recipes.'
 } else {
   try {
-    const res = await fetch(`${Astro.url.origin}/api/favorites/getFavorites.json`, {
-      headers: {
-        cookie: Astro.request.headers.get('cookie') ?? '',
-      },
-    })
-    if (res.ok) {
-      favoriteRecipes = await res.json()
-    } else if (res.status === 401) {
+    favoriteRecipes = await getFavorites(username, token)
+  } catch (e) {
+    if (e instanceof Error && e.message === 'Unauthorized') {
       Astro.cookies.delete('auth_token', { path: '/' })
       Astro.cookies.delete('username', { path: '/' })
       return Astro.redirect('/login')
-    } else {
-      const data = await res.json()
-      error = data.error || 'Error while getting your favorite recipes'
     }
-  } catch (e) {
     console.error(e)
     error = 'Error while getting your favorite recipes'
   }

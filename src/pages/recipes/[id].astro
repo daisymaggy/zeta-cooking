@@ -4,17 +4,18 @@ import Error from "../../components/Error.astro";
 import RecipeCard from "../../components/RecipeCard.astro";
 import type { Recipe } from "../../types/recipe";
 import Header from "../../components/Header.astro";
-import { getRecipeById, getRelatedRecipes } from "../../lib/recipes";
+import { getRecipeById, getRelatedRecipes, getFavorites } from "../../lib/recipes";
 
 const { id } = Astro.params;
 
-const isLoggedIn = !!Astro.cookies.get("auth_token")?.value;
+const token = Astro.cookies.get("auth_token")?.value;
 const username = Astro.cookies.get("username")?.value ?? null;
-
+const isLoggedIn = !!token;
 
 let recipeData: Recipe | null = null;
 let error: string | null = null;
 let relatedRecipesData: Recipe[] = [];
+let isFavorited = false;
 
 if (!id) {
   error = "Recipe ID is missing";
@@ -22,6 +23,15 @@ if (!id) {
   try {
     recipeData = await getRecipeById(id);
     relatedRecipesData = await getRelatedRecipes(id);
+    
+    if (isLoggedIn && token && username) {
+      try {
+        const favorites = await getFavorites(username, token);
+        isFavorited = favorites.some(fav => String(fav.recipe.id) === String(id));
+      } catch (e) {
+        // silent
+      }
+    }
   } catch (e) {
     error = "Error loading the recipe";
   }
@@ -140,7 +150,7 @@ if (!id) {
                             data-logged-in={isLoggedIn ? "true" : "false"}
                             data-username={username}
                             data-id={id}
-                            data-favorited="false"
+                            data-favorited={isFavorited ? "true" : "false"}
                             title="Ajouter aux favoris">
                             <svg 
                                 xmlns="http://www.w3.org/2000/svg" 
@@ -278,25 +288,8 @@ if (!id) {
             return;
         }
 
-        try {
-            const res = await fetch("/api/favorites/getFavorites.json", {
-                credentials: "same-origin",
-            });
-
-            if (res.status === 401) {
-                alert("Your session has expired. Please log in again.");
-                window.location.href = "/logout";
-                return;
-            }
-
-            if (res.ok) {
-                const favorites = await res.json();
-                const isFavorited = favorites.some(fav => String(fav.recipe.id) === String(id));
-                setUI(isFavorited);
-            }
-        } catch (err) {
-            console.error("Failed to load favorites", err);
-        }
+        const initialFavorited = favBtn.dataset.favorited === "true";
+        setUI(initialFavorited);
 
         favBtn.addEventListener("click", toggleFavorite);
     });
