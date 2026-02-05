@@ -2,7 +2,19 @@
 import Error from '../components/Error.astro'
 import Header from '../components/Header.astro'
 export const prerender = false
+
+const params = new URLSearchParams(Astro.request.url.split('?')[1] ?? '')
+const errorParam = params.get('error')
+
 let error: string | null = null
+
+if (errorParam === 'invalid_credentials') {
+  error = 'Wrong username or password'
+}
+
+if (errorParam === 'server_error') {
+  error = 'Server error, please try again later'
+}
 ---
 
 <!doctype html>

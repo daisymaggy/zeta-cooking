@@ -13,7 +13,12 @@ export const POST: APIRoute = async ({ request }) => {
     })
 
     if (!res.ok) {
-      return new Response('Unauthorized', { status: 401 })
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: '/login?error=invalid_credentials',
+        },
+      })
     }
 
     const { token } = await res.json()
@@ -53,6 +58,11 @@ export const POST: APIRoute = async ({ request }) => {
       headers,
     })
   } catch {
-    return new Response('Server error', { status: 500 })
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/login?error=server_error',
+      },
+    })
   }
 }
